@@ -2,46 +2,35 @@ package com.example.flashcard
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.flashcard.ui.theme.FlashcardTheme
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.flashcard.databinding.ActivityMainBinding
+import com.example.flashcard.ui.flashcard.FlashcardAdapter
+import com.example.flashcard.ui.flashcard.FlashcardView
+import com.example.flashcard.ui.model.FlashcardModel
 
 class MainActivity : ComponentActivity() {
+  val sampleData1 = FlashcardModel(
+    id = 1,
+    question = "What is 1 + 1",
+    answer = "2",
+    options = listOf("1", "2", "3", "4")
+  )
+  val sampleData2 = FlashcardModel(
+    id = 2,
+    question = "What is 2 + 2",
+    answer = "4",
+    options = listOf("1", "2", "3", "4")
+  )
+  var sampleList: List<FlashcardModel> = listOf(sampleData1, sampleData2)
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-    setContent {
-      FlashcardTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Greeting(
-            name = "Android",
-            modifier = Modifier.padding(innerPadding)
-          )
-        }
-      }
-    }
-  }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier
-  )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  FlashcardTheme {
-    Greeting("Android")
+    val binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+    binding.cardRecyclerView.layoutManager = LinearLayoutManager(this)
+    binding.cardRecyclerView.adapter = FlashcardAdapter(sampleList)
   }
 }
