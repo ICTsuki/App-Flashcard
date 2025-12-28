@@ -3,22 +3,33 @@ package com.example.flashcard.ui.flashcard
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flashcard.R
+import com.example.flashcard.databinding.ItemFlashcardBinding
 import com.example.flashcard.ui.model.FlashcardModel
 
-class FlashcardAdapter(val data : List<FlashcardModel>) : RecyclerView.Adapter<FlashcardAdapter.FlashcardViewHolder>() {
-  class FlashcardViewHolder(val flashcardView: FlashcardView) : RecyclerView.ViewHolder(flashcardView)
+class FlashcardAdapter(var data : List<FlashcardModel>, val onCardClick: (Int) -> Unit)
+  : RecyclerView.Adapter<FlashcardAdapter.FlashcardViewHolder>() {
+  class FlashcardViewHolder(val binding: ItemFlashcardBinding) : RecyclerView.ViewHolder(binding.root)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlashcardViewHolder {
     val layout = LayoutInflater.from(parent.context)
-      .inflate(R.layout.item_flashcard, parent, false)
-    return FlashcardViewHolder(layout as FlashcardView)
+    val binding = ItemFlashcardBinding.inflate(layout, parent, false)
+    return FlashcardViewHolder(binding)
   }
 
   override fun getItemCount(): Int = data.size
 
-
   override fun onBindViewHolder(holder: FlashcardViewHolder, position: Int) {
-    holder.flashcardView.bind(data[position])
+    val item = data[position]
+    holder.binding.flashcardData = item
+
+    holder.binding.cardContainer.setOnClickListener {
+      onCardClick(position)
+    }
+    holder.binding.executePendingBindings()
+  }
+
+  fun updateData(newData: List<FlashcardModel>) {
+    this.data = newData
+    notifyDataSetChanged()
   }
 }
