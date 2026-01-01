@@ -1,14 +1,14 @@
 package com.example.flashcard
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flashcard.databinding.ActivityMainBinding
 import com.example.flashcard.ui.flashcard.FlashcardAdapter
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
   private val mainViewModel: MainViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
     val binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
     binding.cardRecyclerView.layoutManager = LinearLayoutManager(this)
+    binding.lifecycleOwner = this
 
     val flashcardAdapter = FlashcardAdapter(emptyList()) { position ->
       mainViewModel.flipCard(position)

@@ -6,35 +6,35 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.example.flashcard.databinding.ViewHeaderBinding
 
 class HeaderFragment : Fragment() {
-  private val viewModel : MainViewModel by viewModels()
+  private val viewModel : MainViewModel by activityViewModels()
   override fun onCreateView( inflater: LayoutInflater,
    container: ViewGroup?,
    savedInstanceState: Bundle?
   ): View {
     val binding = ViewHeaderBinding.inflate(inflater, container, false)
-    val categoriesList = viewModel.categories.value ?: emptyList()
-    val categoryName = categoriesList.map{ it.name }
-    val adapter = ArrayAdapter(requireContext(),
-      android.R.layout.simple_spinner_item,
-      categoryName)
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-    binding.category.adapter = adapter
 
-    binding.btnGenerate.setOnClickListener {
-      val quantity = binding.quantity.text.toString().toIntOrNull() ?: 10
-      val position = binding.category.selectedItemPosition
-      val categoryId = if (position >= 0 && position < categoriesList.size) {
-        categoriesList[position].id
-      } else null
+    viewModel.categories.observe(viewLifecycleOwner) { categoriesList ->
+      val categoryName = categoriesList.map{ it.name }
+      val adapter = ArrayAdapter(requireContext(),
+        android.R.layout.simple_spinner_item,
+        categoryName)
+      adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+      binding.category.adapter = adapter
 
-      viewModel.fetchFlashcards(quantity, categoryId)
+      binding.btnGenerate.setOnClickListener {
+        val quantity = binding.quantity.text.toString().toIntOrNull() ?: 10
+        val position = binding.category.selectedItemPosition
+        val categoryId = if (position >= 0 && position < categoriesList.size) {
+          categoriesList[position].id
+        } else null
+
+        viewModel.fetchFlashcards(quantity, categoryId)
+      }
     }
-
     return binding.root
   }
-
 }

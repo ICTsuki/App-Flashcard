@@ -33,24 +33,21 @@ class MainViewModel : ViewModel() {
     list[position].isFlipped = !list[position].isFlipped
     _flashcardList.value = list
   }
+
+  init {
+    fetchCategories()
+  }
   fun fetchCategories() {
     viewModelScope.launch {
       try {
         val response = RetrofitClient.instance.getCategories()
-        val categories = response.trivia_categories.mapIndexed { index, category ->
-          TriviaCategory(
-            id = index,
-            name = category.name
-          )
-        }
-        _categories.value = categories
+        _categories.value = response.trivia_categories
       } catch (e: Exception) {
         e.printStackTrace()
       }
     }
   }
   fun fetchFlashcards(amount: Int = 10, category: Int? = null) {
-    fetchCategories()
     viewModelScope.launch {
       try {
         val response = RetrofitClient.instance.getFlashcards(amount, category)

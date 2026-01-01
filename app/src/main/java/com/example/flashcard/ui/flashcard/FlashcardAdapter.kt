@@ -2,6 +2,7 @@ package com.example.flashcard.ui.flashcard
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flashcard.databinding.ItemFlashcardBinding
 import com.example.flashcard.ui.model.FlashcardModel
@@ -22,6 +23,7 @@ class FlashcardAdapter(var data : List<FlashcardModel>, val onCardClick: (Int) -
   override fun onBindViewHolder(holder: FlashcardViewHolder, position: Int) {
     val item = data[position]
     holder.binding.flashcardData = item
+    holder.binding.lifecycleOwner = holder.itemView.context as? LifecycleOwner
 
     holder.binding.cardContainer.setOnClickListener {
       onCardClick(position)
