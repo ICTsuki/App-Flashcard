@@ -8,7 +8,8 @@ import com.example.flashcard.ui.model.FlashcardModel
 
 class FlashcardAdapter(var data : List<FlashcardModel>, val onCardClick: (Int) -> Unit)
   : RecyclerView.Adapter<FlashcardAdapter.FlashcardViewHolder>() {
-  class FlashcardViewHolder(val binding: ItemFlashcardBinding) : RecyclerView.ViewHolder(binding.root)
+  class FlashcardViewHolder(val binding: ItemFlashcardBinding) :
+    RecyclerView.ViewHolder(binding.root)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlashcardViewHolder {
     val layout = LayoutInflater.from(parent.context)

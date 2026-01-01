@@ -1,6 +1,5 @@
-package com.example.flashcard
+package com.example.flashcard.api
 
-import com.example.flashcard.service.ApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

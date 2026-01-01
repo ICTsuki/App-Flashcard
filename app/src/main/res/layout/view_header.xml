@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <Spinner
+      style="@style/spinner48dp"
+      android:id="@+id/category"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      app:layout_constraintWidth_percent="0.45"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"/>
+    <EditText
+      style="@style/editText48dp"
+      android:id="@+id/quantity"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:autofillHints=""
+      android:inputType="number"
+      android:hint="@string/quantity_option"
+      app:layout_constraintWidth_percent="0.2"
+      app:layout_constraintStart_toEndOf="@+id/category"
+      app:layout_constraintTop_toTopOf="parent"/>
+    <Button
+      android:id="@+id/btnGenerate"
+      android:layout_width="0dp"
+      android:layout_height="48dp"
+      android:text="@string/generate_button_text"
+      android:clickable="true"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@+id/quantity"
+      app:layout_constraintTop_toTopOf="parent"/>
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

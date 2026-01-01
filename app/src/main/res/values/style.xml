@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="spinner48dp">
+    <item name="android:minHeight">48dp</item>
+    <item name="android:paddingVertical">12dp</item>
+  </style>
+  <style name="editText48dp">
+    <item name="android:minHeight">48dp</item>
+    <item name="android:paddingVertical">12dp</item>
+  </style>
+</resources>
