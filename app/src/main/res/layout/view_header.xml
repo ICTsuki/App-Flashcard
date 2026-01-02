@@ -1,37 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
-  <androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <Spinner
-      style="@style/spinner48dp"
-      android:id="@+id/category"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      app:layout_constraintWidth_percent="0.45"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"/>
-    <EditText
-      style="@style/editText48dp"
-      android:id="@+id/quantity"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:autofillHints=""
-      android:inputType="number"
-      android:hint="@string/quantity_option"
-      app:layout_constraintWidth_percent="0.2"
-      app:layout_constraintStart_toEndOf="@+id/category"
-      app:layout_constraintTop_toTopOf="parent"/>
-    <Button
-      android:id="@+id/btnGenerate"
-      android:layout_width="0dp"
-      android:layout_height="48dp"
-      android:text="@string/generate_button_text"
-      android:clickable="true"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toEndOf="@+id/quantity"
-      app:layout_constraintTop_toTopOf="parent"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  </androidx.constraintlayout.widget.ConstraintLayout>
+  <com.google.android.material.card.MaterialCardView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="16dp"
+      app:cardCornerRadius="18dp"
+      app:cardElevation="2dp"
+      app:strokeWidth="1dp"
+      app:strokeColor="@android:color/darker_gray">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+      <!-- Title + score (optional) -->
+      <TextView
+          android:id="@+id/header_title"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:text="Tạo bộ câu hỏi"
+          android:textStyle="bold"
+          android:textSize="18sp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/header_score"
+          android:layout_marginEnd="12dp"/>
+
+      <TextView
+          android:id="@+id/header_score"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Score: 0/0"
+          android:textSize="14sp"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"/>
+
+      <!-- Spinner category -->
+      <Spinner
+          style="@style/spinner48dp"
+          android:id="@+id/category"
+          android:layout_width="0dp"
+          android:layout_height="48dp"
+          app:layout_constraintTop_toBottomOf="@+id/header_title"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          android:layout_marginTop="12dp" />
+
+      <!-- Quantity + Generate in one row -->
+      <EditText
+          style="@style/editText48dp"
+          android:id="@+id/quantity"
+          android:layout_width="0dp"
+          android:layout_height="48dp"
+          android:autofillHints=""
+          android:inputType="number"
+          android:hint="@string/quantity_option"
+          app:layout_constraintTop_toBottomOf="@+id/category"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/btnGenerate"
+          app:layout_constraintWidth_percent="0.32"
+          android:layout_marginTop="12dp"
+          android:layout_marginEnd="12dp" />
+
+      <com.google.android.material.button.MaterialButton
+          android:id="@+id/btnGenerate"
+          android:layout_width="0dp"
+          android:layout_height="48dp"
+          android:text="@string/generate_button_text"
+          app:cornerRadius="12dp"
+          app:layout_constraintTop_toBottomOf="@+id/category"
+          app:layout_constraintStart_toEndOf="@+id/quantity"
+          app:layout_constraintEnd_toEndOf="parent"
+          android:layout_marginTop="12dp"
+          app:layout_constraintWidth_percent="0.68" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+  </com.google.android.material.card.MaterialCardView>
 </layout>
