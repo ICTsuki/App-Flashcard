@@ -11,6 +11,8 @@
       android:supportsRtl="true"
       android:theme="@style/Theme.Flashcard">
     <activity
+        android:name=".CreateDeckActivity" />
+    <activity
         android:name=".MainActivity"
         android:exported="true"
         android:label="@string/app_name"
