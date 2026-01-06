@@ -1,50 +1,109 @@
 package com.example.flashcard
 
+import android.app.Application
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.flashcard.api.RetrofitClient
 import com.example.flashcard.api.TriviaCategory
+import com.example.flashcard.data.local.AppDatabase
+import com.example.flashcard.data.local.LocalDeckRepository
+import com.example.flashcard.data.local.NewCardInput
+import com.example.flashcard.data.local.DeckEntity
 import com.example.flashcard.ui.model.FlashcardModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+  private var currentLoadedDeckId: Long? = null
+
+  // ===== Room (My Decks) =====
+  private val deckRepo: LocalDeckRepository =
+    LocalDeckRepository(AppDatabase.getInstance(application).deckDao())
+
+  val myDecks: LiveData<List<DeckEntity>> = deckRepo.observeDecks().asLiveData()
+
+  fun createMyDeck(name: String, cards: List<NewCardInput>) {
+    viewModelScope.launch(Dispatchers.IO) {
+      deckRepo.createDeck(name, cards)
+    }
+  }
+
+  fun loadMyDeck(deckId: Long, limit: Int? = null, shuffle: Boolean = true) {
+    currentLoadedDeckId = deckId
+
+    viewModelScope.launch(Dispatchers.IO) {
+      val cards = deckRepo.getCards(deckId)
+      val picked = if (limit != null && limit > 0) cards.take(limit) else cards
+
+      val list = picked.mapIndexed { index, c ->
+        val options = mutableListOf(
+          c.correctAnswer, c.wrong1, c.wrong2, c.wrong3
+        )
+        if (shuffle) options.shuffle()
+
+        FlashcardModel(
+          id = index + 1,
+          question = c.question,
+          answer = c.correctAnswer,
+          options = options
+        )
+      }.toMutableList()
+
+      if (shuffle) list.shuffle()
+
+      resetScore()
+      _flashcardList.postValue(list)
+    }
+  }
 
   // ===== LiveData chính =====
   private val _flashcardList = MutableLiveData<List<FlashcardModel>>(emptyList())
-  val flashcardList: LiveData<List<FlashcardModel>> get() = _flashcardList
+  val flashcardList: LiveData<List<FlashcardModel>> = _flashcardList
 
-  private val _categories = MutableLiveData<List<TriviaCategory>>(emptyList())
-  val categories: LiveData<List<TriviaCategory>> get() = _categories
-
-  // ===== Score (đặt trong ViewModel, không đặt global) =====
   private val _score = MutableLiveData(0)
-  val score: LiveData<Int> get() = _score
+  val score: LiveData<Int> = _score
 
   private val _totalAnswered = MutableLiveData(0)
-  val totalAnswered: LiveData<Int> get() = _totalAnswered
+  val totalAnswered: LiveData<Int> = _totalAnswered
 
-  init {
-    fetchCategories()
+  private val _categories = MutableLiveData<List<TriviaCategory>>(emptyList())
+  val categories: LiveData<List<TriviaCategory>> = _categories
+
+  // ===== Sample fallback =====
+  private val sampleData1 = FlashcardModel(
+    id = 1,
+    question = "1 + 1 = ?",
+    answer = "2",
+    options = listOf("1", "2", "3", "4")
+  )
+  private val sampleData2 = FlashcardModel(
+    id = 2,
+    question = "Capital of Viet Nam?",
+    answer = "Hanoi",
+    options = listOf("Ho Chi Minh", "Da Nang", "Hanoi", "Hue")
+  )
+
+  // ===== API: categories =====
+  fun fetchCategories() {
+    viewModelScope.launch {
+      try {
+        val res = RetrofitClient.instance.getCategories()
+        _categories.value = res.trivia_categories
+      } catch (e: Exception) {
+        _categories.value = emptyList()
+      }
+    }
   }
 
-  // ===== Sample data fallback =====
-  companion object {
-    private val sampleData1 = FlashcardModel(
-      id = 1,
-      question = "What is 1 + 1",
-      answer = "2",
-      options = listOf("1", "2", "3", "4")
-    )
 
-    private val sampleData2 = FlashcardModel(
-      id = 2,
-      question = "Question 2",
-      answer = "Answer",
-      options = listOf("Option 1", "Option 2", "Answer", "Option 4")
-    )
+  fun resetScore() {
+    _score.postValue(0)
+    _totalAnswered.postValue(0)
   }
 
   // ===== UI actions =====
@@ -60,77 +119,71 @@ class MainViewModel : ViewModel() {
     val current = _flashcardList.value?.toMutableList() ?: return
     val card = current.getOrNull(position) ?: return
 
-    // Nếu đã trả lời rồi thì không cho chọn lại
     if (card.selectedOptionIndex != null) return
-
-    // Check optionIndex hợp lệ
     if (optionIndex !in card.options.indices) return
 
     card.selectedOptionIndex = optionIndex
     val picked = card.options[optionIndex]
     val correct = (picked == card.answer)
     card.isCorrect = correct
-
-    // Auto flip để hiện đáp án
     card.isFlipped = true
 
-    // Update score
     _totalAnswered.value = (_totalAnswered.value ?: 0) + 1
     if (correct) _score.value = (_score.value ?: 0) + 1
 
     _flashcardList.value = current
   }
 
-  fun resetScore() {
-    _score.value = 0
-    _totalAnswered.value = 0
-  }
+  // ===== API: flashcards =====
+  fun fetchFlashcards(amount: Int, categoryId: Int?) {
 
-  // ===== Network =====
-  fun fetchCategories() {
+    currentLoadedDeckId = null
+
     viewModelScope.launch {
       try {
-        val response = RetrofitClient.instance.getCategories()
-        _categories.value = response.trivia_categories
-      } catch (e: Exception) {
-        e.printStackTrace()
-      }
-    }
-  }
+        val response = RetrofitClient.instance.getFlashcards(
+          amount = amount,
+          category = categoryId
+        )
 
-  fun fetchFlashcards(amount: Int = 10, category: Int? = null) {
-    viewModelScope.launch {
-      try {
-        // Reset score mỗi lần generate bộ câu hỏi mới
-        resetScore()
+        val list = response.results.mapIndexed { index, q ->
+          val question = decodeString(q.question)
+          val correct = decodeString(q.correct_answer)
+          val incorrect = q.incorrect_answers.map { s -> decodeString(s) }
 
-        val response = RetrofitClient.instance.getFlashcards(amount, category)
-
-        val flashcards = response.results.mapIndexed { index, flashcard ->
+          val options = (incorrect + correct).shuffled()
           FlashcardModel(
-            id = index,
-            question = decodeString(flashcard.question),
-            answer = decodeString(flashcard.correct_answer),
-            options = (flashcard.incorrect_answers + flashcard.correct_answer)
-              .map { decodeString(it) }
-              .shuffled()
+            id = index + 1,
+            question = question,
+            answer = correct,
+            options = options
           )
         }
 
-        _flashcardList.value = flashcards
+        resetScore()
+        _flashcardList.value = list
       } catch (e: Exception) {
-        e.printStackTrace()
         println("Lỗi khi tải dữ liệu: ${e.message}")
-
-        // Fallback
         resetScore()
         _flashcardList.value = listOf(sampleData1, sampleData2)
       }
     }
   }
 
-  // ===== Utils =====
+
   private fun decodeString(str: String): String {
     return HtmlCompat.fromHtml(str, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+  }
+  fun deleteMyDeck(deckId: Long) {
+    viewModelScope.launch(Dispatchers.IO) {
+      deckRepo.deleteDeck(deckId)
+
+      // ✅ Nếu đang hiển thị deck này thì clear UI ngay
+      if (currentLoadedDeckId == deckId) {
+        currentLoadedDeckId = null
+        resetScore()
+        _flashcardList.postValue(emptyList())
+      }
+    }
   }
 }

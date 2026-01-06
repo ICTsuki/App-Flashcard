@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <style name="App.Button.Filled" parent="Widget.Material3.Button">
+    <item name="cornerRadius">12dp</item>
+    <item name="android:minHeight">44dp</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:textAllCaps">true</item>
+  </style>
 
+  <style name="App.Button.OutlinedPrimary" parent="Widget.Material3.Button.OutlinedButton">
+    <item name="cornerRadius">12dp</item>
+    <item name="android:minHeight">44dp</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:textAllCaps">true</item>
+
+    <!-- Quan trọng: ép viền + chữ về màu primary (tím), tránh hồng -->
+    <item name="strokeColor">?attr/colorPrimary</item>
+    <item name="android:textColor">?attr/colorPrimary</item>
+    <item name="strokeWidth">2dp</item>
+  </style>
   <style name="Theme.Flashcard" parent="Theme.MaterialComponents.Light.NoActionBar" />
 </resources>
